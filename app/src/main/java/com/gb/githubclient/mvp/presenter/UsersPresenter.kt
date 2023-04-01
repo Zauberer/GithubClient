@@ -2,14 +2,19 @@ package com.gb.githubclient.mvp.presenter
 
 import com.gb.githubclient.mvp.model.entity.GithubUser
 import com.gb.githubclient.mvp.model.entity.GithubUsersRepo
+import com.gb.githubclient.mvp.model.repo.IGithubUsersRepo
 import com.gb.githubclient.mvp.presenter.list.IUserListPresenter
 import com.gb.githubclient.mvp.view.UsersView
 import com.gb.githubclient.mvp.view.list.UserItemView
+import com.gb.githubclient.navigation.IScreens
 import com.github.terrakok.cicerone.Router
+import io.reactivex.rxjava3.core.Scheduler
 import moxy.MvpPresenter
 
-class UsersPresenter(val usersRepo: GithubUsersRepo, val router: Router) : MvpPresenter<UsersView>() {
-
+class UsersPresenter(val uiScheduler: Scheduler,
+                     val usersRepo: IGithubUsersRepo,
+                     val router: Router,
+                     val screens: IScreens) : MvpPresenter<UsersView>() {
     class UsersListPresenter : IUserListPresenter {
         val users = mutableListOf<GithubUser>()
         override var itemClickListener: ((UserItemView) -> Unit)? = null
@@ -18,6 +23,7 @@ class UsersPresenter(val usersRepo: GithubUsersRepo, val router: Router) : MvpPr
         override fun bindView(view: UserItemView) {
             val user = users[view.pos]
             user.login?.let { view.setLogin(it) }
+            user.avatarUrl?.let {view.loadAvatar(it)}
         }
     }
 
@@ -31,14 +37,20 @@ class UsersPresenter(val usersRepo: GithubUsersRepo, val router: Router) : MvpPr
         usersListPresenter.itemClickListener = { itemView ->
             val user = usersListPresenter.users[itemView.pos]
 
-            // Navigate to next screen
+            router.navigateTo(screens.user(user))
         }
     }
 
     fun loadData() {
-        val users = usersRepo.getUsers()
-        usersListPresenter.users.addAll(users)
-        viewState.updateList()
+        usersRepo.getUsers()
+            .observeOn(uiScheduler)
+            .subscribe({ repos ->
+                usersListPresenter.users.clear()
+                usersListPresenter.users.addAll(repos)
+                viewState.updateList()
+            }, {
+                println("Error: ${it.message}")
+            })
     }
 
     fun backPressed(): Boolean {

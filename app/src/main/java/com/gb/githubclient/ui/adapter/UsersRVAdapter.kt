@@ -2,16 +2,20 @@ package com.gb.githubclient.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.gb.githubclient.databinding.ItemUserBinding
+import com.gb.githubclient.mvp.image.IImageLoader
 import com.gb.githubclient.mvp.presenter.list.IUserListPresenter
 import com.gb.githubclient.mvp.view.list.UserItemView
 
-class UsersRVAdapter(val presenter : IUserListPresenter) : RecyclerView.Adapter<UsersRVAdapter.ViewHolder>() {
+class UsersRVAdapter(val presenter : IUserListPresenter, val imageLoader: IImageLoader<ImageView>) : RecyclerView.Adapter<UsersRVAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)).apply {
-            itemView.setOnClickListener { presenter.itemClickListener?.invoke(this) }
+            itemView.setOnClickListener {
+                presenter.itemClickListener?.invoke(this)
+            }
         }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
@@ -26,6 +30,10 @@ class UsersRVAdapter(val presenter : IUserListPresenter) : RecyclerView.Adapter<
 
         override fun setLogin(text: String) = with(vb) {
             tvLogin.text = text
+        }
+
+        override fun loadAvatar(url: String) = with(vb) {
+            imageLoader.loadInto(url, vb.ivAvatar)
         }
     }
 }
