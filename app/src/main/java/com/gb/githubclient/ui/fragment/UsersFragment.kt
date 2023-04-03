@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gb.githubclient.App
 import com.gb.githubclient.databinding.FragmentUsersBinding
 import com.gb.githubclient.mvp.model.api.ApiHolder
+import com.gb.githubclient.mvp.model.cache.room.RoomGithubUsersCache
 import com.gb.githubclient.mvp.model.entity.room.Database
 import com.gb.githubclient.mvp.model.repo.retrofit.RetrofitGithubUsersRepo
 import com.gb.githubclient.mvp.presenter.UsersPresenter
@@ -32,7 +33,9 @@ class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
     val presenter: UsersPresenter by moxyPresenter {
         UsersPresenter(
             AndroidSchedulers.mainThread(),
-            RetrofitGithubUsersRepo(ApiHolder.api, AndroidNetworkStatus(App.instance), Database.getInstance()),
+            RetrofitGithubUsersRepo(ApiHolder.api,
+                AndroidNetworkStatus(App.instance),
+                RoomGithubUsersCache(Database.getInstance())),
             App.instance.router, App.instance.screens
         )
     }

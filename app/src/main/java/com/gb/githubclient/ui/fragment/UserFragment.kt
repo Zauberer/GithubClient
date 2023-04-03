@@ -12,6 +12,7 @@ import com.gb.githubclient.mvp.presenter.UserPresenter
 import com.gb.githubclient.mvp.view.UserView
 import com.gb.githubclient.ui.activity.BackButtonListener
 import com.gb.githubclient.mvp.model.api.ApiHolder
+import com.gb.githubclient.mvp.model.cache.room.RoomGithubRepositoriesCache
 import com.gb.githubclient.mvp.model.entity.room.Database
 import com.gb.githubclient.ui.adapter.ReposotoriesRVAdapter
 import com.gb.githubclient.ui.network.AndroidNetworkStatus
@@ -29,7 +30,7 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
         val user = arguments?.getParcelable<GithubUser>(USER_ARG) as GithubUser
 
         UserPresenter(user, AndroidSchedulers.mainThread(),
-            RetrofitGithubRepositoriesRepo(ApiHolder.api, AndroidNetworkStatus(App.instance), Database.getInstance()),
+            RetrofitGithubRepositoriesRepo(ApiHolder.api, AndroidNetworkStatus(App.instance), RoomGithubRepositoriesCache(Database.getInstance())),
             App.instance.router,
             App.instance.screens
         )
