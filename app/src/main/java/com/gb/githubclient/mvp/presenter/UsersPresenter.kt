@@ -9,11 +9,14 @@ import com.gb.githubclient.navigation.IScreens
 import com.github.terrakok.cicerone.Router
 import io.reactivex.rxjava3.core.Scheduler
 import moxy.MvpPresenter
+import javax.inject.Inject
 
-class UsersPresenter(val mainThreadScheduler: Scheduler,
-                     val usersRepo: IGithubUsersRepo,
-                     val router: Router,
-                     val screens: IScreens) : MvpPresenter<UsersView>() {
+class UsersPresenter(val mainThreadScheduler: Scheduler) : MvpPresenter<UsersView>() {
+
+    @Inject lateinit var usersRepo: IGithubUsersRepo
+    @Inject lateinit var router: Router
+    @Inject lateinit var screens: IScreens
+
     class UsersListPresenter : IUserListPresenter {
         val users = mutableListOf<GithubUser>()
         override var itemClickListener: ((UserItemView) -> Unit)? = null

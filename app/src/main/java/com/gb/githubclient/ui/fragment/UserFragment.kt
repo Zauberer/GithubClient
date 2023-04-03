@@ -14,11 +14,14 @@ import com.gb.githubclient.ui.activity.BackButtonListener
 import com.gb.githubclient.mvp.model.api.ApiHolder
 import com.gb.githubclient.mvp.model.cache.room.RoomGithubRepositoriesCache
 import com.gb.githubclient.mvp.model.entity.room.Database
+import com.gb.githubclient.navigation.IScreens
 import com.gb.githubclient.ui.adapter.ReposotoriesRVAdapter
 import com.gb.githubclient.ui.network.AndroidNetworkStatus
+import com.github.terrakok.cicerone.Router
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
 
 class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
 
@@ -26,13 +29,17 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
     private val binding
         get() = _binding!!
 
+    @Inject lateinit var database: Database
+    @Inject lateinit var router: Router
+    @Inject lateinit var screens: IScreens
+
     val presenter: UserPresenter by moxyPresenter {
         val user = arguments?.getParcelable<GithubUser>(USER_ARG) as GithubUser
 
         UserPresenter(user, AndroidSchedulers.mainThread(),
-            RetrofitGithubRepositoriesRepo(ApiHolder.api, AndroidNetworkStatus(App.instance), RoomGithubRepositoriesCache(Database.getInstance())),
-            App.instance.router,
-            App.instance.screens
+            RetrofitGithubRepositoriesRepo(ApiHolder.api, AndroidNetworkStatus(App.instance), RoomGithubRepositoriesCache(database)),
+            router,
+            screens
         )
     }
 
@@ -45,6 +52,8 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
             arguments = Bundle().apply {
                 putParcelable(USER_ARG, user)
             }
+
+            App.instance.appComponent.inject(this)
         }
     }
 

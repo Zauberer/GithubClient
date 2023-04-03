@@ -19,6 +19,7 @@ import com.gb.githubclient.ui.network.AndroidNetworkStatus
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
 
 class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
 
@@ -27,17 +28,15 @@ class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
         get() = _binding!!
 
     companion object {
-        fun newInstance() = UsersFragment()
+        fun newInstance() = UsersFragment().apply {
+            App.instance.appComponent.inject(this)
+        }
     }
 
     val presenter: UsersPresenter by moxyPresenter {
-        UsersPresenter(
-            AndroidSchedulers.mainThread(),
-            RetrofitGithubUsersRepo(ApiHolder.api,
-                AndroidNetworkStatus(App.instance),
-                RoomGithubUsersCache(Database.getInstance())),
-            App.instance.router, App.instance.screens
-        )
+        UsersPresenter(AndroidSchedulers.mainThread()).apply {
+             App.instance.appComponent.inject(this)
+        }
     }
 
     var adapter: UsersRVAdapter? = null
