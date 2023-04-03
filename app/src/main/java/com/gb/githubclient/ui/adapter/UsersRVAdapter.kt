@@ -17,7 +17,6 @@ class UsersRVAdapter(val presenter : IUserListPresenter, val imageLoader: IImage
                 presenter.itemClickListener?.invoke(this)
             }
         }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
         presenter.bindView(holder.apply {
             pos = position

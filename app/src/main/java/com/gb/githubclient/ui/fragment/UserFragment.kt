@@ -3,12 +3,19 @@ package com.gb.githubclient.ui.fragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.gb.githubclient.App
 import com.gb.githubclient.databinding.FragmentUserBinding
 import com.gb.githubclient.mvp.model.entity.GithubUser
+import com.gb.githubclient.mvp.model.repo.retrofit.RetrofitGithubRepositoriesRepo
 import com.gb.githubclient.mvp.presenter.UserPresenter
 import com.gb.githubclient.mvp.view.UserView
 import com.gb.githubclient.ui.activity.BackButtonListener
+import com.gb.githubclient.mvp.model.api.ApiHolder
+import com.gb.githubclient.mvp.model.entity.room.Database
+import com.gb.githubclient.ui.adapter.ReposotoriesRVAdapter
+import com.gb.githubclient.ui.network.AndroidNetworkStatus
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 
@@ -20,8 +27,15 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
 
     val presenter: UserPresenter by moxyPresenter {
         val user = arguments?.getParcelable<GithubUser>(USER_ARG) as GithubUser
-        UserPresenter(user, App.instance.router)
+
+        UserPresenter(user, AndroidSchedulers.mainThread(),
+            RetrofitGithubRepositoriesRepo(ApiHolder.api, AndroidNetworkStatus(App.instance), Database.getInstance()),
+            App.instance.router,
+            App.instance.screens
+        )
     }
+
+    var adapter: ReposotoriesRVAdapter? = null
 
     companion object {
         private const val USER_ARG = "user"
@@ -44,7 +58,9 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
     }
 
     override fun init() {
-        // Nothing to do
+        binding.rvRepositories.layoutManager = LinearLayoutManager(context)
+        adapter = ReposotoriesRVAdapter(presenter.repositoriesListPresenter)
+        binding.rvRepositories.adapter = adapter
     }
 
     override fun setLogin(text: String) {
@@ -52,7 +68,7 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
     }
 
     override fun updateList() {
-        // TODO: List of repos
+        adapter?.notifyDataSetChanged()
     }
 
     override fun release() {

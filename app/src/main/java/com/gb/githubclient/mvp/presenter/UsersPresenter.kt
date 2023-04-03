@@ -1,7 +1,6 @@
 package com.gb.githubclient.mvp.presenter
 
 import com.gb.githubclient.mvp.model.entity.GithubUser
-import com.gb.githubclient.mvp.model.entity.GithubUsersRepo
 import com.gb.githubclient.mvp.model.repo.IGithubUsersRepo
 import com.gb.githubclient.mvp.presenter.list.IUserListPresenter
 import com.gb.githubclient.mvp.view.UsersView
@@ -11,7 +10,7 @@ import com.github.terrakok.cicerone.Router
 import io.reactivex.rxjava3.core.Scheduler
 import moxy.MvpPresenter
 
-class UsersPresenter(val uiScheduler: Scheduler,
+class UsersPresenter(val mainThreadScheduler: Scheduler,
                      val usersRepo: IGithubUsersRepo,
                      val router: Router,
                      val screens: IScreens) : MvpPresenter<UsersView>() {
@@ -43,7 +42,7 @@ class UsersPresenter(val uiScheduler: Scheduler,
 
     fun loadData() {
         usersRepo.getUsers()
-            .observeOn(uiScheduler)
+            .observeOn(mainThreadScheduler)
             .subscribe({ repos ->
                 usersListPresenter.users.clear()
                 usersListPresenter.users.addAll(repos)
