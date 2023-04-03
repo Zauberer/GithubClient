@@ -1,6 +1,7 @@
 package com.gb.githubclient.di
 
 import com.gb.githubclient.di.module.*
+import com.gb.githubclient.di.user.UserSubcomponent
 import com.gb.githubclient.mvp.presenter.MainPresenter
 import com.gb.githubclient.mvp.presenter.UsersPresenter
 import com.gb.githubclient.ui.activity.MainActivity
@@ -17,15 +18,12 @@ import javax.inject.Singleton
         AppModule::class,
         CacheModule::class,
         CiceroneModule::class,
-        RepoModule::class
+        ImageModule::class
     ]
 )
 interface AppComponent {
+    fun userSubcomponent() : UserSubcomponent
+
     fun inject(mainActivity: MainActivity)
     fun inject(mainPresenter: MainPresenter)
-    fun inject(usersPresenter: UsersPresenter)
-
-    fun inject(usersFragment: UsersFragment)
-    fun inject(userFragment: UserFragment)
-    fun inject(repositoryFragment: RepositoryFragment)
 }

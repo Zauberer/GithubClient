@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gb.githubclient.App
 import com.gb.githubclient.databinding.FragmentUserBinding
+import com.gb.githubclient.di.repository.RepositorySubcomponent
 import com.gb.githubclient.mvp.model.entity.GithubUser
 import com.gb.githubclient.mvp.model.repo.retrofit.RetrofitGithubRepositoriesRepo
 import com.gb.githubclient.mvp.presenter.UserPresenter
@@ -36,11 +37,9 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
     val presenter: UserPresenter by moxyPresenter {
         val user = arguments?.getParcelable<GithubUser>(USER_ARG) as GithubUser
 
-        UserPresenter(user, AndroidSchedulers.mainThread(),
-            RetrofitGithubRepositoriesRepo(ApiHolder.api, AndroidNetworkStatus(App.instance), RoomGithubRepositoriesCache(database)),
-            router,
-            screens
-        )
+        UserPresenter(user).apply {
+            App.instance.initRepositorySubcomponent()?.inject(this)
+        }
     }
 
     var adapter: ReposotoriesRVAdapter? = null
@@ -52,8 +51,6 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
             arguments = Bundle().apply {
                 putParcelable(USER_ARG, user)
             }
-
-            App.instance.appComponent.inject(this)
         }
     }
 
@@ -79,10 +76,6 @@ class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
 
     override fun updateList() {
         adapter?.notifyDataSetChanged()
-    }
-
-    override fun release() {
-        // TODO:
     }
 
     override fun backPressed() = presenter.backPressed()

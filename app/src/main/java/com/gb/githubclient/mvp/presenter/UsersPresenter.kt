@@ -1,5 +1,6 @@
 package com.gb.githubclient.mvp.presenter
 
+import com.gb.githubclient.di.user.IUserScopeContainer
 import com.gb.githubclient.mvp.model.entity.GithubUser
 import com.gb.githubclient.mvp.model.repo.IGithubUsersRepo
 import com.gb.githubclient.mvp.presenter.list.IUserListPresenter
@@ -16,6 +17,7 @@ class UsersPresenter(val mainThreadScheduler: Scheduler) : MvpPresenter<UsersVie
     @Inject lateinit var usersRepo: IGithubUsersRepo
     @Inject lateinit var router: Router
     @Inject lateinit var screens: IScreens
+    @Inject lateinit var userScopeContainer: IUserScopeContainer
 
     class UsersListPresenter : IUserListPresenter {
         val users = mutableListOf<GithubUser>()
@@ -61,7 +63,7 @@ class UsersPresenter(val mainThreadScheduler: Scheduler) : MvpPresenter<UsersVie
     }
 
     override fun onDestroy() {
+        userScopeContainer.releaseUserScope()
         super.onDestroy()
-        viewState.release()
     }
 }

@@ -9,5 +9,4 @@ interface UserView : MvpView {
     fun init()
     fun setLogin(text: String)
     fun updateList()
-    fun release()
 }

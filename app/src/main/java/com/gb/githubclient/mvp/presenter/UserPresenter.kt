@@ -1,5 +1,6 @@
 package com.gb.githubclient.mvp.presenter
 
+import com.gb.githubclient.di.repository.IRepositoryScopeContainer
 import com.gb.githubclient.mvp.model.entity.GithubRepository
 import com.gb.githubclient.mvp.model.entity.GithubUser
 import com.gb.githubclient.mvp.model.repo.IGithubRepositoriesRepo
@@ -10,13 +11,21 @@ import com.gb.githubclient.navigation.IScreens
 import com.github.terrakok.cicerone.Router
 import io.reactivex.rxjava3.core.Scheduler
 import moxy.MvpPresenter
+import javax.inject.Inject
 
-class UserPresenter(val user: GithubUser,
-                    val mainThreadScheduler: Scheduler,
-                    val repositoriesRepo : IGithubRepositoriesRepo,
-                    val router: Router,
-                    val screens: IScreens) :
+class UserPresenter(val user: GithubUser) :
     MvpPresenter<UserView>() {
+
+    @Inject
+    lateinit var mainThreadScheduler: Scheduler
+    @Inject
+    lateinit var repositoriesRepo: IGithubRepositoriesRepo
+    @Inject
+    lateinit var router: Router
+    @Inject
+    lateinit var screens: IScreens
+    @Inject
+    lateinit var repositoryScopeContainer: IRepositoryScopeContainer
 
     class RepositoriesListPresenter : IRepositoryListPresenter {
         val repositories = mutableListOf<GithubRepository>()
@@ -60,5 +69,10 @@ class UserPresenter(val user: GithubUser,
     fun backPressed(): Boolean {
         router.exit()
         return true
+    }
+
+    override fun onDestroy() {
+        repositoryScopeContainer.releaseRepositoryScope()
+        super.onDestroy()
     }
 }

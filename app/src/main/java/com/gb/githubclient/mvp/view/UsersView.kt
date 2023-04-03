@@ -8,5 +8,4 @@ import moxy.viewstate.strategy.StateStrategyType
 interface UsersView : MvpView {
     fun init()
     fun updateList()
-    fun release()
 }

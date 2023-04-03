@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gb.githubclient.App
 import com.gb.githubclient.databinding.FragmentUsersBinding
+import com.gb.githubclient.di.user.UserSubcomponent
 import com.gb.githubclient.mvp.model.api.ApiHolder
 import com.gb.githubclient.mvp.model.cache.room.RoomGithubUsersCache
 import com.gb.githubclient.mvp.model.entity.room.Database
@@ -28,14 +29,15 @@ class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
         get() = _binding!!
 
     companion object {
-        fun newInstance() = UsersFragment().apply {
-            App.instance.appComponent.inject(this)
-        }
+        fun newInstance() = UsersFragment()
     }
+
+    var userSubcomponent: UserSubcomponent? = null
 
     val presenter: UsersPresenter by moxyPresenter {
         UsersPresenter(AndroidSchedulers.mainThread()).apply {
-             App.instance.appComponent.inject(this)
+            userSubcomponent = App.instance.initUserSubcomponent()
+            userSubcomponent?.inject(this)
         }
     }
 
@@ -53,16 +55,14 @@ class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
 
     override fun init() {
         binding.rvUsers?.layoutManager = LinearLayoutManager(context)
-        adapter = UsersRVAdapter(presenter.usersListPresenter, GlideImageLoader())
+        adapter = UsersRVAdapter(presenter.usersListPresenter).apply {
+            userSubcomponent?.inject(this)
+        }
         binding.rvUsers?.adapter = adapter
     }
 
     override fun updateList() {
         adapter?.notifyDataSetChanged()
-    }
-
-    override fun release() {
-        // TODO
     }
 
     override fun backPressed() = presenter.backPressed()
